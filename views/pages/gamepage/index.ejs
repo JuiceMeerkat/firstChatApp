@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bakugo - gamepage</title>
+    <link rel="stylesheet" href="/css/main.css"> 
+
+</head>
+<body>
+    <header><% if (user) { %>
+            <%- include('../../partials/header-logged-in.ejs'); %>
+          <% } else if (!user) { %>
+            <%- include('../../partials/header-not-logged-in.ejs'); %>
+          <% } else { %>
+            <%- console.log("su'in else") %>
+          <% } %>
+    </header>
+
+    <div id="notificationsList"></div>
+
+    <h1>GAMEESSS page</h1>
+    
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const game = io(`${window.location.origin.replace(/^http/, 'ws')}/game`, {
+            transports: ['websocket', 'polling']
+            });
+
+        console.log('game : ', game)
+
+        const sendForwardEvent = () => {
+            console.log('sendForwardEvent called')
+            game.emit('E_forward', {'message': '1'})
+        }
+
+        game.on('E_forward', (data) => {
+            console.log('Event E_forward received!!')
+            console.log('data : ', data);
+
+        })
+
+        window.sendForwardEvent = sendForwardEvent;
+    </script>
+
+    <script src="/js/notifications.js"></script>
+    <!-- <script src="socket.io/socket.io.js"></script> -->
+    <script src="/js/socketStuff.js"></script>
+</body>
+</html>

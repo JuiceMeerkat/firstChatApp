@@ -1,0 +1,6 @@
+I've learnt many things about networking, APIs, sockets and more while doing this. It's been very helpful. Here are a compilation of some of the things I've learnt.
+
+
+Upon connection with the server, a socket has a default room created for it, and it is named after itself. This means if you have 3 rooms you are making, and three users online, you'll have 6 rooms in total, 3 for the rooms you deliberately made, and 3 for each socket.
+
+socket.join(<room>) simply creates a room with name <room> if it doesn't exist, then adds the socket to that room. It is a quick way to create the room.

@@ -1,0 +1,111 @@
+main {
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    /* align-items: center; */
+
+    padding: 0px;
+}
+
+#newFeaturesDiv {
+    width: 80vw;
+
+    padding: 20px;
+    margin: 20px;
+
+}
+
+#getNewFeatsForm {
+    margin: 0px;
+}
+
+#newFeaturesUl {
+    outline: 2px #0F1A20 dashed;
+
+    padding: 40px;
+    /* padding-left: 40px;  
+    padding-right: 40px; */
+
+    max-width: 80vw;
+    /* width: 100%; */
+
+    /* margin-right: auto; */
+    /* align-self: center; */
+}
+
+ul h1 {
+    font-size: 24px;
+}
+
+ul p {
+    font-size: 20px;
+}
+
+ul li {
+    font-size: 18px;
+
+    color: #0F1A20;
+    font-weight: bold;
+}
+
+main h2 {
+    margin-left: 0px;
+}
+
+.newFeatureLi {
+    color: #226F54;
+
+    margin-bottom: 20px;
+}
+
+.newFeatureLi b, .newFeatureLi i{
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.messageContentBold {
+    color: #E86252;
+}
+
+
+#requestYourOwnDiv {
+    width: 80vw;
+    height: 100%;
+
+    
+    padding: 20px;
+    margin: 20px;
+
+    /* align-self: center; */
+}
+
+
+textarea {
+    width: 80vw;
+    height: 100%;
+
+    outline: 1px #0F1A20 solid;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+
+    font-size: 24px;
+
+    padding: 20px;
+    /* padding-right: 0px; */
+
+    background-color: #EEEBD0;
+
+    /* max-width: 80vw; */
+
+    
+    /* resize: none;  */
+    /* ^ Add this to make it not resizable  */
+}
+
+textarea:focus {
+    outline: 3px #0F1A20 solid;
+    /* background-color: red; */
+}
+

@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bakugo - chat page</title>
+    <link rel="stylesheet" href="/css/main.css"> 
+    <link rel="stylesheet" href="/css/chatPage.css">
+</head>
+<body>
+    <header><% if (user) { %>
+            <%- include('../../partials/header-logged-in.ejs'); %>
+          <% } else if (!user) { %>
+            <%- include('../../partials/header-not-logged-in.ejs'); %>
+          <% } else { %>
+            <%- console.log("su'in else") %>
+          <% } %>
+    </header>
+
+    <div id="notificationsList"></div>
+
+    <h1 id="chatPageHeading">Chat</h1>
+
+    <main id="chatPageMain">
+
+
+        
+
+
+
+        <div id="chatBoxHolder">
+
+            <div id="chatBoxHolderTitleDiv">
+                <h1 id="chatBoxHolderTitle">Your rooms</h1>
+                <button id="chatSelectorReloader"> <img id="chatSelectorReloaderSvg" src="/images/reload-icon.svg"> Reload</button>
+            </div>
+
+            <div id="chatSelectorDiv">
+                
+                <!-- <button class="chatSelectorBtn">
+                    random
+                    <div id="selectionShowerDiv"></div>
+                </button> -->
+            </div>
+
+            <div id="chatBoxAndPeopleOnlineShower">
+                <div id="chatBox">
+                    <h1>No Room sel3cted</h1>
+
+
+                    <!-- <div id="messagesBox">
+                        <div>
+                            <p>Hello Dear, do take a seat</p>
+                            <i>~snahu</i>
+                        </div>
+                    </div>
+
+                    <form action="" id="textForm">
+                        <input type="text" id="messageInput">
+                        <input type="submit">
+                    </form> -->
+                </div>
+
+                <div id="peopleOnlineShower">
+
+                </div>
+            </div>
+
+        </div>
+        <p id="hintP">Hint: texting not working? Typing your messages and pressing enter but they don't seem to be sending? Don't panic, just reload the page. Others in the chat also won't be able to see the messages, but you can just refresh the page to be able to type. If the problem persists, we apologise for the inconvenience, please write a small message about the bug on the NewFeats page. We apologise for any inconvenience <br> - the bakugo team</p>
+
+        <div id="roomStuff">
+            <!-- <div id="joinRoomDiv" class="roomStuffDiv">
+                <form action="joinRoom" method="POST" id="findRoomForm">
+                    <label for="room">Room</label>
+                    <input type="text" name="room" placeholder="i.e. some-room" id="findRoomInput">
+                    <input type="submit" id="joinRoomSubmitBtn">
+                </form>
+            </div> -->
+
+            <div id="getUserRoomsDiv" class="roomStuffDiv">
+                <button id="userRoomsListButton" >Your Rooms</button>
+                <ul id="userRoomsList">
+
+                </ul>
+                
+            </div>
+
+            <div id="getAllRoomsDiv" class="roomStuffDiv">
+                <button id="allRoomsListButton" >All rooms</button>
+                <ul id="allRoomsList">
+
+                </ul>
+            </div>
+        </div>
+    </main>
+
+
+    <script src="/js/notifications.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="/js/socketStuff.js"></script>
+
+    <script>
+        console.log("CHATPAGE's jxs online")
+        console.log('beininging of chatpage.ejs testingVARIABLE : ', testingVARIABLE);
+
+        // TOP DECLARATIONS
+        const chatSelectorDivR = document.querySelector('#chatSelectorDiv');
+        const chatSelectorReloaderR = document.querySelector('#chatSelectorReloader');
+
+        
+        let messagesBoxR = document.querySelector('#messagesBox');
+        let chatBoxR = document.querySelector('#chatBox');
+        let peopleOnlineShowerR = document.querySelector('#peopleOnlineShower');
+        let chatBoxAndPeopleOnlineShowerR = document.querySelector('#chatBoxAndPeopleOnlineShower');
+
+        let textFormR = document.querySelector('#textForm');
+        let messageInputR = document.querySelector('#messageInput');
+        
+
+        console.log('messagesBoxR : ', messagesBoxR);
+        
+        console.log('chatBoxR : ', chatBoxR);
+        console.log('peopleOnlineShowerR : ', peopleOnlineShowerR);
+        console.log('chatBoxAndPeopleOnlineShowerR : ', chatBoxAndPeopleOnlineShowerR);
+
+        // CREATE A VARIABLE TO STORE WHICH ROOM THE USER HAS SELECTED
+        let roomUserCurrentlyIn = undefined;
+
+        console.log('i am on the line')
+
+        console.log('to check the socket variable is carried over (socket) : ', socket);
+
+        // TOP DECLARATIONS
+
+        // For number 1 of the three boxes on the page, or for number 1 of the three children of the element with 'roomStuff' as its id: the join room query box
+        const findRoomFormR = document.querySelector('#findRoomForm');
+        const findRoomInputR = document.querySelector('#findRoomInput')
+
+        // For number 2 of the three boxes on the page, or for number 2 of the three children of the element with 'roomStuff' as its id: the see all my (users) rooms box
+        const userRoomsListButtonR = document.querySelector('#userRoomsListButton');
+        const userRoomsListR = document.querySelector('#userRoomsList');
+
+        // For number 3 of the three boxes on the page, or for number 3 of the three children of the element with 'roomStuff' as its id: the see all rooms box
+
+
+        const allRoomsListButtonR = document.querySelector('#allRoomsListButton');
+        const allRoomsListR = document.querySelector('#allRoomsList');
+
+        console.log('userRoomsListButtonR : ', userRoomsListButtonR);
+        console.log('userRoomsListR : ', userRoomsListR);
+
+        const delRoomButTEMPLATE = document.createElement('button')
+        delRoomButTEMPLATE.classList.add('deleteRoomBtn');
+        delRoomButTEMPLATE.innerHTML = `Leave this room`;
+        console.log('delRoomButTEMPLATE : ', delRoomButTEMPLATE);
+        console.log(delRoomButTEMPLATE.outerHTML)
+        
+        const joinRoomButTEMPLATE = document.createElement('button')
+        joinRoomButTEMPLATE.classList.add('joinRoomBtn');
+        joinRoomButTEMPLATE.innerHTML = `Join this room`;
+        console.log('joinRoomButTEMPLATE : ', joinRoomButTEMPLATE);
+        console.log(joinRoomButTEMPLATE.outerHTML)
+
+
+
+        
+        
+
+
+        // Random functions
+
+        const scrollElToBottom = (element) => {
+            element.scrollTo({
+                top: element.scrollHeight,
+                behaviour: 'smooth'
+            })
+        }
+
+        
+
+        const addChatSelector = (roomname) => {
+            console.log('addChatSelector FUNC called');
+            const newlyCreatedChild = document.createElement('button');
+            newlyCreatedChild.innerHTML = `${roomname}`;
+            newlyCreatedChild.classList.add('chatSelectorBtn');
+            newlyCreatedChild.classList.add('btn');
+            chatSelectorDivR.appendChild(newlyCreatedChild);
+
+            
+            
+            newlyCreatedChild.addEventListener('click', async () => {
+                const target = event.target;
+                console.log('target : ', target);
+
+                roomUserCurrentlyIn = roomname;
+
+                chatBoxR.innerHTML = `
+                    <button id="loadPreviousuMsgsBtn">Load previous 100 messages </button>
+                    <div id="messagesBox">
+                        
+                    </div>
+
+                    <form action="" id="textForm">
+                        <input type="text" id="messageInput" placeholder="msg"></input>
+                        <input type="submit" id="textFormInput" class="btn">
+                    </form>
+                `;
+                
+                
+                messagesBoxR = document.querySelector('#messagesBox');
+                textFormR = document.querySelector('#textForm');
+                // textFormInputR = document.querySelector('#textFormInput');
+                chatBoxR = document.querySelector('#chatBox');
+                messageInputR = document.querySelector('#messageInput');
+                loadPreviousuMsgsBtnR = document.querySelector('#loadPreviousuMsgsBtn');
+
+                loadPreviousuMsgsBtn.addEventListener('click', async (event) => {
+                    console.log('event : ', event);
+                    
+                    await handleLoadPreviousMsgsBtn();
+                })
+
+                await handleLoadPreviousMsgsBtn()
+
+                await addBoxShowingPeopleInRoom(roomname);
+
+                // NOW add the box showing which people part of the chat are online
+                await syncPeopleInRoomAndStatuses(roomname);
+
+                console.log('messagesBoxR : ', messagesBoxR);
+                console.log('textFormR : ', textFormR);
+
+
+                
+
+                // // Finally add the selectionShowerDiv
+                // currentSelectionShowerDiv = document.querySelector('#selectionShowerDiv');
+
+                // try {
+                //     console.log('tried buddy')
+                //     currentSelectionShowerDiv.parentElement.removeChild(currentSelectionShowerDiv)
+                // } catch(err) {
+                //     console.log('err : ',err)
+                // }
+                // const selectionShowerDiv = document.createElement('div')
+                // selectionShowerDiv.id = 'selectionShowerDiv';
+                // newlyCreatedChild.appendChild(selectionShowerDiv);
+
+            })
+        };
+
+        const addBoxShowingPeopleInRoom = async(roomName) => {
+            console.log('addBoxShowingPeopleInRoom FUNC called');
+            console.log('roomName : ', roomName);
+            
+            console.log('peopleOnlineShowerR : ', peopleOnlineShowerR);
+
+            peopleOnlineShowerR.innerHTML = `
+            <h3>People in this room:</h3>
+            <div id="peopleAndStatuses">Loading...</div>
+            <button id="syncPeopleAndStatusesButton"> <img id="chatSelectorReloaderSvg" src="/images/reload-icon.svg"> Reload</button>
+            `;
+
+            await populateBoxShowingPeopleInRoom(roomName);
+            
+
+            
+            // NOW add an EL for the button so the user can trigger the syncing of people and their statuses via a button, not having to do it via the console
+            syncPeopleAndStatusesButtonR = document.querySelector('#syncPeopleAndStatusesButton');
+                syncPeopleAndStatusesButtonR.addEventListener('click', async () => {
+                await syncPeopleInRoomAndStatuses(roomUserCurrentlyIn);
+            })
+        }
+
+        
+
+        const populateBoxShowingPeopleInRoom = async(roomName) => {
+            console.log('populateBoxShowingPeopleInRoom FUNC called');
+            console.log('roomName : ', roomName);
+
+            const peopleInTheRoom = await fetchPeopleInRoom(roomName);
+
+            peopleAndStatusesR = document.querySelector('#peopleAndStatuses');
+            console.log('peopleAndStatusesR : ', peopleAndStatusesR);
+            console.log('peopleOnlineShowerR : ', peopleOnlineShowerR);
+            peopleAndStatusesR.innerHTML = ``;
+
+            for (let i = 0; i < peopleInTheRoom.length; i++) {
+                let tempChild = document.createElement('p');
+                tempChild.innerHTML = `${peopleInTheRoom[i].username}: offline`;
+                // tempChild.addEventListener('mouseover', (event) => {
+                //     // console.log('tempChild : ', tempChild); // Works, showing that the tempChild refers to the tempChild outside the event listener.
+                //     event.target.style.hover
+                // })
+                tempChild.id = peopleInTheRoom[i].id;
+                tempChild.classList += 'nameAndStatusP';
+                // tempChild.title = 
+
+                
+                peopleAndStatusesR.appendChild(tempChild);
+            }
+        }
+
+        const handleLoadPreviousMsgsBtn = async () => {
+            console.log('handleLoadPreviousMsgsBtn FUNC called');
+            messagesBoxR.innerHTML = 'Loading...';
+            const response = await fetchXmessagesFromARoom(roomUserCurrentlyIn, 100);
+            console.log('response : ', response);
+
+            const userId = await whoami();
+
+            messagesBoxR.innerHTML = '';
+            for (let i = 0; i < response.result.length; i++) {
+                addMessage(response.result[i], userId, 'top');
+            }
+        }
+
+
+        
+        // FUNCTIONS and SOCKET RELATED THINGS
+
+        const whoami = async () => {
+            // Fetch the user's id
+            const url = '/api/whoami';
+            const options = {
+                'method': 'GET'
+            }
+            const fetchResponse = await fetch(url, options);
+            const result = await fetchResponse.json();
+            console.log('fetchResponse : ', fetchResponse);
+            console.log('result : ', result);
+
+            const userId = result['req.user'].id;
+            console.log('userId : ', userId);
+            // Works :)
+
+            return userId
+        }
+
+        // func for sending messages
+        const sendMessage = (message, room) => {
+            console.log('sendMessage FUNC called')
+            // const token = req.cookies.token
+            const data = {'message':message, 'room':room}
+            console.log("data : ", data);
+            socket.emit('E_CliToServerMessageAndRoom', data)
+            messageInputR.value = '';
+        }
+
+
+        // Listening to joining room event, for anybody. so if anybody joins a room you/client are
+        socket.on('E_SomeoneJoinedRoom', (data) => {
+            console.log('event E_SomeoneJoinedRoom received from socket')
+
+            // console.log(`data : \n ${data}`)
+            const {message, room, username} = data;
+            console.log('message : ', message);
+            console.log('room : ', room);
+            console.log('username : ', username);
+            console.log('MUSTARD socket.id : ', socket.id);
+
+            // const someoneJoinedMssage = `${username} joined the chat`;
+            // addMessage(someoneJoinedMssage, '[SYSTEM]', 'bottom'); // This was the OLD method, and it caused quite a few misunderstandings 😂 so I've decided to replace it with a more intuitive, modern solution of statuses (are the people in the group online or not), but we won't forget this.
+
+            // New solution (or part of it)
+            if (room == roomUserCurrentlyIn) {
+                syncPeopleInRoomAndStatuses(room);
+            }
+            
+        })
+
+        // Listening for the opposite, for when someone has disconnected
+        socket.on('E_someoneDisconnected', (data) => {
+            console.log('E_someoneDisconnected event received');
+            console.log('data : ', data);
+
+            const room = data['roomName'];
+
+            if (room == roomUserCurrentlyIn) {
+                syncPeopleInRoomAndStatuses(room);
+            }
+            
+        })
+
+        socket.on('E_someoneLeftARoom', (room) => {
+            console.log('E_someoneLeftARoom event received');
+
+            if (room == roomUserCurrentlyIn) {
+                syncPeopleInRoomAndStatuses(room);
+            }
+        })
+        
+        // FUNC for checking incoming socket calls, to see if there is an update on the people currently online in a room. The reason this isn't in socketStuff.js is that you don't need it unless your on the page with the chat, because it's showing the statuses of the people in a specific room
+        socket.on('E_ServerToCliStatusesOfPeopleInRoom', (data) => {
+            console.log('E_ServerToCliStatusesOfPeopleInRoom event received!');
+
+            console.log('data : ', data);
+
+            peopleAndStatusesR = document.querySelector('#peopleAndStatuses');
+            console.log('peopleAndStatusesR : ', peopleAndStatusesR);
+
+            for (let i = 0; i < peopleAndStatusesR.children.length; i++) {
+                console.log('i : ', i);
+                const currentChild = peopleAndStatusesR.children[i]
+                for (let k = 0; k < data.length; k++) {
+                    // console.log('k : ', k);
+                    // console.log('i : ', i);
+                    const id = data[k]['id'];
+
+                    // if they match, change status unknown to online
+                    if (id == currentChild.id) {
+                        console.log('we found a match!');
+                        currentChild.innerHTML = `${data[k]['username']}: ONLINE`;
+                        currentChild.style.color = '#E86252';
+                        currentChild.style.fontWeight = 'bold';
+                    }
+                }
+            }
+            console.log('end of event dealer');
+        })
+
+        // Now a FUNCTION to trigger the above event from the server
+        const syncPeopleInRoomsStatuses = (room) => {
+            console.log('syncPeopleInRoomsStatuses FUNC called');
+            console.log('emitting Event: E_CliToServerRequestStatusesOfPeopleInRoom to room : ', room);
+            socket.emit('E_CliToServerRequestStatusesOfPeopleInRoom', room);
+        }
+
+        const syncPeopleInRoomAndStatuses = async(room) => {
+            console.log('syncPeopleInRoomAndStatuses FUNC called');
+            await populateBoxShowingPeopleInRoom(room);
+            syncPeopleInRoomsStatuses(room);
+        }
+
+        // The above will link to an EL we created when we made the whole slice of that part of the ChatBoxHolder i think
+
+        // ADD MESSAGE TO MESSAGES BOX IN CHATBOX
+        const addMessage = async (data, userId, topOrBottom) => {
+            // console.log('addMessage FUNC called');
+
+            const {content, username, id} = data;
+            // console.log('content : ', content);
+            // console.log('username : ', username);
+            // console.log('id : ', id);
+
+            messagesBoxR = document.querySelector('#messagesBox');
+            const messageToAdd = document.createElement('div')
+            // console.log('messagesBoxR : ', messagesBoxR);
+            messageToAdd.innerHTML = `
+                <p>${content}</p> <br>    
+                <i>~${username}</i>
+                `
+            messageToAdd.classList += 'messageDiv';
+            messageToAdd.id = id;
+
+
+
+            // Add border radiuses depending on who sent the message
+            if (id == userId) {
+                // messageToAdd.style.backgroundColor = 'green'; // Doesn't actually look too bad
+                messageToAdd.style.border = '2px solid purple'; // Doesn't actually look too bad
+                messageToAdd.style.borderBottomRightRadius = '0px';
+            } else if (id != userId) {
+                // messageToAdd.style.backgroundColor = 'purple'; // Doesn't actually look too bad
+                messageToAdd.style.borderBottomLeftRadius = '0px';
+            } else {
+                console.log("su'in else went terrribly wrong")
+            }
+
+            // console.log(messageToAdd)
+            if (topOrBottom == 'top') {
+                messagesBoxR.insertBefore(messageToAdd, messagesBoxR.firstChild) // doing it this way allows us to add the child to the beginning of the div, so the messages can appear in the correct chronological order
+            } else if (topOrBottom == 'bottom') {
+                messagesBoxR.appendChild(messageToAdd)
+            } else {
+                return "error: you didn't give either top or bottom for the 'topOrBottom' variable"
+            }
+
+            scrollElToBottom(messagesBoxR);
+
+        }
+
+        const wipeChatSelectorDiv = () => {
+            chatSelectorDivR.innerHTML = '';
+        }
+
+        const loadChatSelectorDiv = async () => {
+            console.log('loadChatSelectorDiv FUNC called');
+
+            const rooms = await fetchUsersRooms();
+
+            for (let i = 0; i < rooms.length; i++) {
+                addChatSelector(rooms[i].roomname);
+            }
+        }
+
+        const wipeAndLoadChatSelectorDiv = async () => {
+            wipeChatSelectorDiv();
+            loadChatSelectorDiv();
+        }
+
+        chatSelectorReloaderR.addEventListener('click', async (event) => {
+            console.log('chatSelectorReloader EL called');
+            console.log('event : ', event);
+
+            await wipeAndLoadChatSelectorDiv();
+        })
+
+        // For fetching who the people are who are in a specificed room and their statuses
+        const fetchPeopleInRoom = async(roomName) => {
+            console.log('fetchPeopleInRoom FUNC called')
+            console.log('roomName : ', roomName);
+
+            const url = '/api/peopleInRoom';
+            const options = {
+                "method": "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    "roomName": roomName
+                })
+            }
+            
+            const response = await fetch(url, options);
+            let result = await response.json();
+            result2 = result.result // haha
+
+            console.log('response : ', response);
+            console.log('result : ', result);
+            console.log('result2 : ', result2);
+
+            return result2
+        }
+        
+
+        // EVENT LISTENERS 
+
+        // For sending messages, eventListener
+        // textFormR.addEventListener('submit', (event) => {
+        //     event.preventDefault()
+        //     messageInputR = document.querySelector('#messageInput');
+        //     messageInputRValue = messageInputR.value
+        //     console.log('messageInputRValue : ', messageInputRValue)
+        //     if (messageInputRValue) {
+        //         sendMessage(messageInputR.value)
+        //     }
+
+        // })
+
+        document.addEventListener('submit', (event) => {
+            console.log(`document listen for submit event listener speaking`)
+            const target = event.target;
+            if (target.id == 'textForm' && roomUserCurrentlyIn) {
+                event.preventDefault()
+                const messageInputR = document.querySelector('#messageInput');
+                const messageInputRValue = messageInputR.value;
+
+                if (messageInputRValue) {
+                    sendMessage(messageInputRValue, roomUserCurrentlyIn)
+                }
+            }
+        }) 
+
+        
+        // console.log('brabrabra chatSelectorDivR : ', chatSelectorDivR)
+        // LISTEN FOR 
+        chatSelectorDivR.addEventListener('click', (event) => {
+            // Finally add the selectionShowerDiv
+            const target = event.target;
+            console.log('target : ', target);
+            currentSelectionShowerDiv = document.querySelector('#selectionShowerDiv');
+
+            try {
+                // console.log('in the try clause')
+                currentSelectionShowerDiv.parentElement.removeChild(currentSelectionShowerDiv)
+            } catch(err) {
+                console.log('err : ',err)
+            }
+            const selectionShowerDiv = document.createElement('div')
+            selectionShowerDiv.id = 'selectionShowerDiv';
+            target.appendChild(selectionShowerDiv);  
+        })
+
+
+
+        const fetchXmessagesFromARoom = async (roomName, numOfMessages) => {
+            console.log('fetchXmessagesFromARoom FUNC called');
+            const url = '/api/loadMessages';
+            const options = {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    "roomName": roomName,
+                    "numOfMessages": numOfMessages
+                })
+            };
+
+            const response = await fetch(url, options);
+            console.log('response : ', response);
+
+            const result = await response.json();
+
+            return result;
+        };
+
+
+// ==========
+
+
+        const delButs = document.querySelectorAll('.deleteRoomBtn');
+        delButs.forEach(but => {
+            but.addEventListener('click', () => {
+                console.log('button clicked.')
+            })
+        })
+
+
+        // FOR JOINING ROOMS
+        const joinRoom = async (room) => {
+            console.log('joining rooms called')
+
+            const response = await fetch('/joinRoom', {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    "room": room
+                })
+
+            })
+        }
+        
+        // FOR FETCHING ALL ROOMS
+
+        const fetchAllRoomsAndProcess = async () => {
+            console.log('fetchAllRooms called')
+
+            const response = await fetch('/getAllRooms', {
+                method: 'GET'
+            })
+            const result = await response.json()
+            const rooms = result.result;
+            console.log('response : ', response);
+            console.log('result : ', result);
+            console.log('rooms : ', rooms)
+
+            // Preparatory clean of the rooms list
+            allRoomsListR.innerHTML = ``
+            
+            console.log('before, result : ', result)
+            console.log('about to hop into loop')
+            if (rooms[0]) {
+                for (let i = 5; i != 0; i--) {
+                    console.log('i : ', i)
+                    console.log('in loop')
+                    let currentRoom = rooms.splice(0, 1)
+                    let currentRoom2 = currentRoom[0]
+                    let currentRoom3 = currentRoom2['roomName']
+                    console.log('currentRoom : ', currentRoom);
+                    console.log('currentRoom2 : ', currentRoom2);
+                    console.log('currentRoom3 : ', currentRoom3);
+                    console.log('result.length : ', result.length);
+
+                    
+                    // Now do the stuff with currentRoom
+                    const li = document.createElement('li');
+                    li.innerHTML = `${currentRoom3} ${joinRoomButTEMPLATE.outerHTML}`
+                    // let deleteButton = delRoomButTEMPLATE
+                    // li.appendChild(deleteButton)
+                    console.log('li elements first child (a button) OR  li.children[0]: ', li.children[0])
+
+                    // ADD EVENT LISTENER FOR EACH ROOM, AND THE BUTTON ASSOCIATED WITH IT
+                    li.children[0].addEventListener('click', async (event) => {
+                        console.log(`button : ${currentRoom3} clicked!`);
+
+                        // Do other code you want done here
+
+                        // Join the room, so the database has you registered as in that room
+                        await joinRoom(currentRoom3)
+                        
+                        // And only once you've done that, subscribe to the messagse from that room, because the server checks you are in fact in the server before agreeing to serve you the messages.
+                        console.log('about to send off E_CliToServerJoinRoom event');
+                        data = {"room":currentRoom3}
+                        socket.emit("E_CliToServerJoinRoom", data);
+                        await wipeAndLoadChatSelectorDiv();
+
+                        // at the end, refresh the users rooms, and the room chatSelectorReloader
+                        await fetchUsersRoomsAndProcess(event);
+                        // await ...
+                    })
+
+                    allRoomsListR.appendChild(li)
+                    console.log('li.children : ', li.children);
+
+                    
+
+                    if (result.length == 0) {
+                        break
+                    }
+
+                } 
+
+            } else {
+                console.log('result[0] : ', result[0])
+                console.log('hell')
+                
+            }
+
+
+        }
+
+        // FOR FETCHING ROOMS USER IS IN
+
+        const fetchUsersRooms = async () => {
+            console.log('fetchUsersRooms FUNC called');
+            const response = await fetch('/getUserRooms');
+            console.log('response : ', response);
+
+            const jsonResponse = await response.json();
+            console.log('jsonResponse : ', jsonResponse);
+
+            const result = jsonResponse.result;
+            console.log('result : ', result);
+
+            for (let i = 0; i < result.length; i++ ) {
+                console.log('result[', i, '] : ', result[i]);
+            };
+
+
+
+            return result
+        }
+
+        const fetchUsersRoomsAndProcess = async () => {
+            console.log('fetchUsersRoomsAndProcess FUNC called');
+            const result = await fetchUsersRooms();
+
+            // console.log('result[0] : ', result[0])
+
+            // Preparatory clean of the rooms list
+            userRoomsListR.innerHTML = ``
+            
+            console.log('before, result : ', result)
+            console.log('about to hop into loop')
+            if (result[0]) {
+                for (let i = 5; i != 0; i--) {
+                    console.log('i : ', i)
+                    console.log('in loop')
+                    let currentRoom = result.splice(0, 1)
+                    let currentRoom2 = currentRoom[0]
+                    let currentRoom3 = currentRoom2['roomname']
+                    console.log('currentRoom : ', currentRoom);
+                    console.log('currentRoom2 : ', currentRoom2);
+                    console.log('currentRoom3 : ', currentRoom3);
+                    console.log('result.length : ', result.length);
+
+                    
+                    // Now do the stuff with currentRoom
+                    const li = document.createElement('li');
+                    li.innerHTML = `${currentRoom3} ${delRoomButTEMPLATE.outerHTML}`
+                    // let deleteButton = delRoomButTEMPLATE
+                    // li.appendChild(deleteButton)
+                    console.log('li elements first child (a button) OR  li.children[0]: ', li.children[0])
+
+                    // ADD EVENT LISTENER FOR EACH ROOM, AND THE BUTTON ASSOCIATED WITH IT
+                    li.children[0].addEventListener('click', async (event) => {
+                        console.log(`button : ${currentRoom3} clicked!`);
+                        // Do other code you want done here
+                        const options = {
+                            method: "DELETE",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                "room": currentRoom3 || 'hell'
+                            })}
+
+                        console.log('options.body : ', options.body)
+
+                        const response = await fetch('/leaveRoom', options)
+                        console.log('response : ', response);
+
+                        const result = await response.json()
+                        console.log('result : ', result)
+
+                        // at the end, refresh the users rooms, and refresh the chat selector menu
+                        await fetchUsersRoomsAndProcess(event);
+                        await wipeAndLoadChatSelectorDiv();
+
+                        // socket.leave(currentRoom3) // You can't do this! This is server side code! That's how the server kicks you out of a room. Instead, do this: (credit where credit's due: https://stackoverflow.com/questions/70675098/how-does-the-disconnect-event-works-in-socket-io)
+                        // socket.disconnect(); // This is not what we want to be doing actually, because this disconnects us from all chats. We are just exiling ourself and disconnecting from the ENTIRE websocket server. Instead, let's request to leave a specific room.
+                        console.log('about to emit E_ClientToServerRequestToLeaveRoom event');
+                        const socketEvent = 'E_ClientToServerRequestToLeaveRoom';
+                        const room =  currentRoom3;
+                        console.log('socket : ', socket);
+                        socket.emit('E_ClientToServerRequestToLeaveRoom', room);
+                        // emitE_ClientToServerRequestToLeaveRoom(room);
+
+                        
+
+                        console.log('ENDDDDDD')
+                    })
+
+                    userRoomsListR.appendChild(li)
+                    console.log('li.children : ', li.children);
+
+                    
+
+                    if (result.length == 0) {
+                        break
+                    }
+
+                } 
+
+            } else {
+                console.log('result[0] : ', result[0])
+                console.log('hell')
+                
+            }
+
+        }
+
+        userRoomsListButtonR.addEventListener('click', async (event) => {
+            console.log('userRoomsListButtonR EL called');
+            console.log('event : ', event);
+
+            event.preventDefault();
+
+            await fetchUsersRoomsAndProcess();
+        })
+
+        allRoomsListButtonR.addEventListener('click', async (event) => {
+            console.log('allroomsListbuttonR EL called');
+            console.log('event : ', event);
+            await fetchAllRoomsAndProcess(event);
+        })
+
+
+        // WINDOW BLAH BLAH THINGS
+        window.fetchUsersRoomsAndProcess = fetchUsersRoomsAndProcess;
+        window.fetchAllRoomsAndProcess = fetchAllRoomsAndProcess;
+        window.joinRoom = joinRoom;
+        
+// =============
+
+        // WINDOW.BLAH = BLAH  THINGS
+
+        window.addMessage = addMessage;
+        window.sendMessage = sendMessage;
+        window.roomUserCurrentlyIn = roomUserCurrentlyIn;
+        window.fetchXmessagesFromARoom = fetchXmessagesFromARoom;
+        window.wipeAndLoadChatSelectorDiv = wipeAndLoadChatSelectorDiv;
+
+        // TEMP
+        window.fetchPeopleInRoom = fetchPeopleInRoom;
+
+        console.log('end of testingVARIABLE : ', testingVARIABLE);
+        
+    </script>
+    
+</body>
+</html>

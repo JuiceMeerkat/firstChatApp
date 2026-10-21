@@ -1,0 +1,47 @@
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#registerForm {
+    display: flex;
+    flex-direction: column;
+
+    width: 30vw;
+
+    padding: 50px;
+
+    align-self: center;
+
+    background-color: #EBB3A9;
+
+    font-size: 20px;
+
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+
+    border-radius: 20px;
+}
+
+#registerForm input {
+    font-size: 20px;
+
+    padding: 10px;
+
+    border-radius: 10px;
+
+    margin: 10px;
+
+    background-color: #EEEBD0;
+
+    border: none;
+}
+
+#registerForm #submitButton:hover {
+    background-color: #C9BF69;
+
+}
+#registerForm #submitButton {
+    transition-duration: 0s;
+    
+}

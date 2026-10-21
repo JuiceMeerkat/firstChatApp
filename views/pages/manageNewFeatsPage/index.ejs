@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bakugo - manage new feats</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/newFeatsPage.css">
+    <link rel="stylesheet" href="/css/manageNewFeatsPage.css">
+</head>
+<body>
+    <header><% if (user) { %>
+            <%- include('../../partials/header-logged-in.ejs'); %>
+          <% } else if (!user) { %>
+            <%- include('../../partials/header-not-logged-in.ejs'); %>
+          <% } else { %>
+            <%- console.log("su'in else") %>
+          <% } %>
+    </header>
+
+    <div id="notificationsList"></div>
+
+    <h1>This is the manage new features page!</h1>
+    <h2>This page is basically dedicated towards the community - both letting you know what features/changes are coming soon, and letting you request new features/changes!</p>
+
+    <main>
+        <!-- <h2> Coming soon.... <br> We are sorry for the delay but this page is not yet ready. </h2> -->
+
+            <div id="newFeaturesDiv">
+                <h3>Features/Changes coming soon</h3>
+                
+                <ul id="newFeaturesUl">
+                    <li>This is an example new feature!</li>
+                </ul>
+
+                <form action="/api/getNewFeats" method="GET" id="getNewFeatsForm">
+                    <input type="submit" class="btn" value="Get All New Features">
+                </form>
+
+            </div>
+
+
+            <div id="updateNewFeatDiv">
+                
+            
+
+                <form action="/api/updateNewFeat" method="UPDATE" id="updateNewFeatForm">
+
+                    <label for="newFeatId">newFeatId</label>
+                    <input type="number" name="newFeatId" id="newFeatIdInput" class="btn" required>
+
+                    <label for="newState">newState</label>
+                    <select name="newState" id="newStateInput">
+                        <option value="approved">approved</option>
+                        <option value="pending">pending</option>
+                        <option value="deleted">deleted</option>
+                    </select>
+
+                    <label for="newIsImplemented">newIsImplemented</label>
+                    <input type="checkbox" name="newIsImplemented" id="newIsImplementedInput" class="btn">
+
+                    <input type="submit" class="btn" value="Send off the update request">
+
+                </form>
+
+            </div>
+            
+
+
+    </main>
+
+
+    <script>
+        const updateNewFeatFormR = document.querySelector('#updateNewFeatForm');
+        const newFeatIdInputR = document.querySelector('#newFeatIdInput');
+        const newStateInputR = document.querySelector('#newStateInput');
+        const newIsImplementedInputR = document.querySelector('#newIsImplementedInput');
+        const getNewFeatsFormR = document.querySelector('#getNewFeatsForm');
+        const newFeaturesUlR = document.querySelector('#newFeaturesUl');
+
+        console.log('updateNewFeatForm : ', updateNewFeatForm);
+        console.log('newFeatIdInputR : ', newFeatIdInputR);
+        console.log('newStateInputR : ', newStateInputR);
+        console.log('newIsImplementedInputR : ', newIsImplementedInputR);
+        console.log('getNewFeatsFormR : ', getNewFeatsFormR);
+        console.log('newFeaturesUlR : ', newFeaturesUlR);
+
+
+        getNewFeatsFormR.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            console.log('event : ', event);
+
+            getNewFeats();
+        });
+
+        updateNewFeatFormR.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            console.log('event : ', event);
+
+            newFeatId = newFeatIdInputR.value;
+            newState = newStateInputR.value;
+            newIsImplemented = newIsImplementedInputR.checked // Do .checked instead of .value for checkbox inputs to get a boolean value of whether they are checked or not.
+            
+            const url = '/api/updateNewFeat';
+            const options = {
+                method: 'PUT',
+                headers: {
+                    'Content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'newFeatId': newFeatIdInputR.value,
+                    'newState': newStateInputR.value,
+                    'newIsImplemented': newIsImplemented
+                })
+            };
+
+            console.log('options : ', options);
+
+            const response = await fetch(url, options);
+            console.log('response : ', response);
+
+            const result = await response.json();
+            console.log('result : ', result);
+
+            await getNewFeats();
+
+            return result;
+        });
+
+
+        const getAllNewFeatures = async () => {
+            console.log('getAllNewFeatures FUNC called');
+
+            const url = '/api/getAllNewFeats';
+            const options = {
+                method: 'GET'
+            };
+
+            const response = await fetch(url, options);
+            console.log('resposne :', response);
+
+            const result = await response.json();
+            console.log('result : ', result);
+            
+            return result
+        };
+
+        const getNewFeats = async () => {
+            // Fetch new info
+            const response = await getAllNewFeatures();
+            console.log('response : ', response);
+
+            const result = response.response;
+            console.log('result : ', result);
+
+            // return response;
+
+            // Display the info to user
+            wipeNewFeaturesUl();
+            newFeaturesUlR.innerHTML = ``;
+
+            for (let i = 0; i < result.length; i++) {
+                console.log('result[i] : ', result[i]);
+
+                addNewFeatureToNewFeaturesUl(result[i])
+            };
+
+        };
+
+        const wipeNewFeaturesUl = () => {
+            newFeaturesUlR.innerHTML = ``;
+        };
+
+        const addNewFeatureToNewFeaturesUl = (information) => {
+            console.log('addNewFeatureToNewFeaturesUl FUNC called');
+
+            console.log('information : ', information);
+
+            let newChild = document.createElement('li');
+            newChild.classList += 'newFeatureLi';
+            newChild.id = newFeaturesUlR.children
+
+            let newNewChild = `
+            <div class="newFeatureDiv">
+                <div id="idDiv">${information.id}</div> 
+                <div id="contentDiv">${information.content}</div> 
+                <div id="created_atDiv">${information.created_at}</div> 
+                <div id="sent_byDiv">${information.sent_by}</div> 
+                <div id="username">${information.username}</div> 
+                <div id="state">${information.state}</div> 
+                <div id="is_implementedDiv">${information.is_implemented}</div>
+            </div>
+            `;
+
+            newChild.innerHTML = newNewChild;
+
+
+            newFeaturesUlR.appendChild(newChild);
+
+        };
+
+        addEventListener('load', async () => {
+            console.log('webpage fully loaded');
+            await getNewFeats();
+        });
+
+        window.postNewFeatureComment = postNewFeatureComment;
+        window.getAllNewFeatures = getAllNewFeatures;
+        window.wipeNewFeaturesUl = wipeNewFeaturesUl;
+        window.addNewFeatureToNewFeaturesUl = addNewFeatureToNewFeaturesUl;
+
+    </script>
+
+    <script src="/js/notifications.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="/js/socketStuff.js"></script>
+</body>
+</html>

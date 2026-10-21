@@ -1,0 +1,17 @@
+.newFeatureDiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+
+    color: #0F1A20;
+
+    outline: 1px #E86252 solid;
+
+    padding: 3px;
+}
+
+.newFeatureDiv div {
+    margin-left: 10px;
+}

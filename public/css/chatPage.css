@@ -1,0 +1,234 @@
+
+#chatBoxHolder {
+    height: fit-content;
+    
+}
+
+#chatBoxAndPeopleOnlineShower {
+    display: flex;
+    flex-direction: row;
+
+    border: 2px dashed black;
+
+    width: 90vw;
+}
+
+
+#chatBox {
+    margin: 0px;
+    padding: 20px;
+    
+    border-right: 2px solid black;
+    outline: none;
+
+    width: 80%;
+    max-height: 90vh;
+    min-height: 70vh;
+    height: fit-content;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow-x: hidden;
+
+    scrollbar-color: #CFDBD5 #EEEBD0;
+}
+
+
+
+
+
+#chatBox form {
+    height: 10vh;
+    margin: 5px;
+}
+
+
+.chatSelectorBtn {
+    background-color: #EBB3A9;
+    color: blue;
+    outline: none;
+
+    font-size: 30px;
+    
+    height: 60px;
+
+    margin: 0px;
+    margin-right: 2px;
+    margin-left: 2px;
+
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+.chatSelectorBtn:hover {
+    background-color: #EBB3A9;
+
+    outline: none;
+}
+
+#chatPageMain {
+    padding: 30px;
+    padding-top: 0px;
+}
+
+#chatSelectorDiv {
+    width: fit-content;
+
+    
+}
+
+#selectionShowerDiv {
+    width: 100%;
+    height: 5px;
+    background-color: #226F54;
+
+    position: relative;
+}
+
+textarea {
+    width: 80vw;
+    height: 50px;
+
+    outline: 1px #0F1A20 solid;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+
+    font-size: 24px;
+
+    padding: 20px;
+    /* padding-right: 0px; */
+
+    background-color: #EEEBD0;
+
+    /* max-width: 80vw; */
+
+    
+    /* resize: none;  */
+    /* ^ Add this to make it not resizable  */
+}
+
+textarea:focus {
+    outline: 3px #0F1A20 solid;
+    /* background-color: red; */
+}
+
+#messageInput {
+    width: 80%;
+    padding: 20px;
+    border-radius: 15px;
+
+    font-size: 20px;
+
+    background-color: #FFFFFF;
+
+    border: none;
+
+    color: #0F1A20;
+
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+#chatBox #messagesBox {
+    background-color: #D5E4EB;
+    height: 38vh;
+    margin: 5px;
+    padding: 30px;
+    border-radius: 30px;
+
+    overflow: auto;
+}
+
+/* #messagesBox div {
+    margin: 10px;
+    padding: 3px;
+    border-radius: 30px;
+
+    display: flex;
+    flex-direction: column;
+} */
+
+
+
+.messageDiv {
+    background-color: #9FC1D0;
+
+    position: relative;
+
+    /* width: fit-content; */
+
+    border-radius: 30px;
+    padding: 10px;
+    padding-left: 40px;
+
+    margin: 15px;
+
+
+    display: flex;
+    flex-direction: column;
+}
+
+.messageDiv p{
+    font-size: 20px;
+    margin: 0px;
+
+    overflow-wrap:break-word;
+}
+
+.messageDiv i{
+    font-size: 20px;
+    margin: 0px;
+    padding: 0px;
+    color: #E86252;
+
+    position: relative
+}
+
+
+.nameAndStatusP {
+    color: black;
+}
+
+#hintP {
+    margin: 60px;
+    font-size: 20px;
+}
+
+#chatSelectorReloader {
+    display: flex;
+    flex-direction: row;
+
+    height: fit-content;
+}
+
+#chatSelectorReloaderSvg {
+    height: 15px;
+    margin-right: 10px;
+}
+
+#chatBoxHolderTitleDiv {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+
+#getUserRoomsDiv, #getAllRoomsDiv {
+    width: 40vw;
+}
+
+#peopleOnlineShower {
+    padding-left: 20px;
+}
+
+#chatPageHeading {
+    font-size: 60px;
+    margin: 30px;
+
+    color: #E86252;
+
+    
+}

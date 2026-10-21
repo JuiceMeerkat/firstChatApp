@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bakugo - home page</title> 
+    <link rel="stylesheet" href="/css/main.css"> 
+    <!-- <script defer type="text/javascript" src="../../../public/Homepage/index.js"></script> -->
+</head>
+<body>
+    <header><% if (user) { %>
+            <%- include('../../partials/header-logged-in.ejs'); %>
+          <% } else if (!user) { %>
+            <%- include('../../partials/header-not-logged-in.ejs'); %>
+          <% } else { %>
+            <%- console.log("su'in else") %>
+          <% } %>
+    </header>
+
+    <div id="notificationsList"></div>
+
+    <!-- <h1>Homepageeee</h1> -->
+    <section id="userStats">
+        <h1>Hello, <%= name %>. Welcome to the homepage</h1>
+        <p style="font-size: 30px;">There isn't really anything to do on this page yet - feel free to request for something particular or not to be done to this page on the <b><a href="/newFeats">NewFeats page</a></b>, or just have a look around!</p>
+        <div id="stats">
+        </div>
+        
+        
+    </section>
+
+
+    <script src="/js/notifications.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="/js/socketStuff.js"></script>
+</body>
+</html>

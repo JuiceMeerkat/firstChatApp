@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bakugo - New (Feat. ures)</title>
+    <link rel="stylesheet" href="/css/main.css"> 
+    <link rel="stylesheet" href="/css/newFeatsPage.css">
+</head>
+<body>
+    <header><% if (user) { %>
+            <%- include('../../partials/header-logged-in.ejs'); %>
+          <% } else if (!user) { %>
+            <%- include('../../partials/header-not-logged-in.ejs'); %>
+          <% } else { %>
+            <%- console.log("su'in else") %>
+          <% } %>
+    </header>
+
+    <div id="notificationsList"></div>
+
+    <h1>This is the new features/changes page!</h1>
+    <h2>This page is basically dedicated towards the community - both letting you know what features/changes are coming soon, and letting you request new features/changes!</p>
+
+    <main>
+        <!-- <h2> Coming soon.... <br> We are sorry for the delay but this page is not yet ready. </h2> -->
+
+            <div id="newFeaturesDiv">
+                <h3>Features/Changes coming soon</h3>
+                
+
+                <ul id="newFeaturesUl">
+                    <li>This is an example new feature!</li>
+                </ul>
+
+                
+
+                <form action="/api/getNewFeats" method="GET" id="getNewFeatsForm">
+                    <input type="submit" class="btn" value="Get All New Features">
+                </form>
+
+            </div>
+
+
+            <div id="requestYourOwnDiv">
+                
+
+                <form action="/api/postIntermediateNewFeats" method="POST" id="postIntermediateNewFeats">
+                        
+                    <!-- <label for="newFeatureComment"></label>
+                    <input type="text" name="newFeatureComment" id="newFeatureCommentInput"> -->
+
+
+                    <textarea name="story" id="newFeatureCommentInput" placeholder="Type your desired new feature here"></textarea>
+
+
+                    <input type="submit" class="btn" value="Send this off as a desired new feature!">
+                </form>
+
+            </div>
+            
+
+
+    </main>
+
+
+    <script>
+        const postIntermediateNewFeatsR = document.querySelector('#postIntermediateNewFeats');
+        const newFeatureCommentInputR = document.querySelector('#newFeatureCommentInput');
+        const getNewFeatsFormR = document.querySelector('#getNewFeatsForm');
+        const newFeaturesUlR = document.querySelector('#newFeaturesUl');
+
+        console.log('postIntermediateNewFeatsR : ', postIntermediateNewFeatsR);
+        console.log('newFeatureCommentInputR : ', newFeatureCommentInputR);
+        console.log('getNewFeatsFormR : ', getNewFeatsFormR);
+        console.log('newFeaturesUlR : ', newFeaturesUlR);
+
+        postIntermediateNewFeatsR.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            console.log('postIntermediateNewFeatsR EL called');
+            console.log('event : ', event);
+            if (newFeatureCommentInputR.value != '') {
+                const result = await postNewFeatureComment();
+                console.log('result : ', result);
+
+                return result;
+            } else {
+                console.log("nothing in newFeatureCommentInputR.value")
+                return 'nothing in newFeatureCommentInputR.value';
+
+            }
+        });
+
+        getNewFeatsFormR.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            console.log('getNewFeatsFormR EL called');
+            console.log('event : ', event);
+
+            getNewFeats();
+        })
+
+        const getNewFeats = async () => {
+            
+            showNewFeaturesUlLoading();
+
+            // Fetch new info
+            const response = await getAllNewFeatures();
+            console.log('response : ', response);
+
+            const result = response.response;
+            console.log('result : ', result);
+
+            // return response;
+
+            // Display the info to user
+            wipeNewFeaturesUl();
+
+            for (let i = 0; i < result.length; i++) {
+                console.log('result[i] : ', result[i]);
+
+                addNewFeatureToNewFeaturesUl(result[i].content, result[i].username, result[i].state, result[i].is_implemented);
+            };
+
+        }
+
+        const postNewFeatureComment = async () => {
+            const url = '/api/postIntermediateNewFeat';
+            const options = {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    'newFeatureComment': newFeatureCommentInputR.value
+                }) 
+            };
+
+            newFeatureCommentInputR.value = '';
+
+            const response = await fetch(url, options);
+            const result = await response.json()
+
+
+            await getNewFeats();
+            // return result;
+        }
+
+        const getAllNewFeatures = async () => {
+            console.log('getAllNewFeatures FUNC called');
+
+            const url = '/api/getNewPendingFeats';
+            const options = {
+                method: 'GET'
+            };
+
+            const response = await fetch(url, options);
+            const result = await response.json();
+            
+            return result
+        }
+
+        const wipeNewFeaturesUl = () => {
+            newFeaturesUlR.innerHTML = ``;
+        };
+
+        const showNewFeaturesUlLoading = () => {
+            newFeaturesUlR.innerHTML = `Loading...`;
+        }
+
+        const addNewFeatureToNewFeaturesUl = (content, sent_by, state, is_implemented) => {
+            console.log('addNewFeatureToNewFeaturesUl FUNC called');
+
+            state = state.toUpperCase();
+
+            console.log('is_implemented : ', is_implemented);
+
+            is_implemented ? is_implemented = 'Implemented' : is_implemented = 'Not Yet Implemented';
+
+            console.log('content : "', content, '"');
+            console.log('is_implemented : "', is_implemented, '"');
+            console.log('content, sent_by, state : ', content, sent_by, state);
+
+            let newChild = document.createElement('li');
+            newChild.classList += 'newFeatureLi';
+            newChild.id = newFeaturesUlR.children;
+
+
+            // let newNewChild = document.createElement('div');
+            // let id = document.createElement('div');
+            // id.classList = 'idDiv';
+            // let content = document.createE
+            // content.classList = 'contentDiv';
+
+            const newNewChild = ``;
+            newChild.innerHTML = `<b>[${state}] & [${is_implemented}]</b> <i> ${sent_by} </i> says "<b class="messageContentBold">${content}</b>"`;
+
+            newFeaturesUlR.appendChild(newChild);
+
+        };
+
+        addEventListener('load', async () => {
+            console.log('webpage fully loaded');
+            await getNewFeats();
+        });
+
+        window.postNewFeatureComment = postNewFeatureComment;
+        window.getAllNewFeatures = getAllNewFeatures;
+        window.wipeNewFeaturesUl = wipeNewFeaturesUl;
+        window.addNewFeatureToNewFeaturesUl = addNewFeatureToNewFeaturesUl;
+
+    </script>
+
+    <script src="/js/notifications.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="/js/socketStuff.js"></script>
+</body>
+</html>

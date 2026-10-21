@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bakugo - my actions</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/myActionsPage.css">
+</head>
+<body>
+    <header><% if (user) { %>
+            <%- include('../../partials/header-logged-in.ejs'); %>
+          <% } else if (!user) { %>
+            <%- include('../../partials/header-not-logged-in.ejs'); %>
+          <% } else { %>
+            <%- console.log("su'in else") %>
+          <% } %>
+    </header>
+
+    <div id="notificationsList"></div>
+
+    <h1>This is the my actions page</h1>
+    
+
+    <main>
+            <!-- <h2>Coming soon...</h2>
+            <h3>Unfortunately, this page is still in progress. Sorry!</h3> -->
+
+            <p id="explanationP">
+                On this page, you will see the actions that all different roles can achieve. <br>
+                Don't try to hack your way into doing something you can't - you'll only be wasting your time! <br>
+                Try to gain devs trust and friendship and they might upgrade your role! <br>
+                Current list of devs: Corin. Yeah, that's kinda it for now <br>
+                You can check details like your role on the profile page (top right button), but your role is <b> <%=user.role %> </b> incase you forgot!
+            </p>
+
+            <div id="adminsDiv">
+                <h4>Admins</h4>
+                
+                <a href="/chat"><button>Chat</button></a>
+
+                <a href="/manageNewFeats"><button>Manage New Features</button></a>
+
+            </div>
+
+            <div id="managersDiv">
+                <h4>Managers</h4>
+
+                <a href="/chat"><button>Chat</button></a>
+
+                <a href="/manageNewFeats"><button>Manage New Features</button></a>
+
+            </div>
+
+            <div id="usersDiv">
+                <h4>Users</h4>
+
+                <a href="/chat"><button>Chat</button></a>
+            </div>
+
+    </main>
+
+
+    <script src="/js/notifications.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="/js/socketStuff.js"></script>
+</body>
+</html>

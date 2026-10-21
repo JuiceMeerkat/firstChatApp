@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bakugo - register</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/registerPage.css">
+</head>
+<body>
+    <header><% if (user) { %>
+            <%- include('../../partials/header-logged-in.ejs'); %>
+          <% } else if (!user) { %>
+            <%- include('../../partials/header-not-logged-in.ejs'); %>
+          <% } else { %>
+            <%- console.log("su'in else") %>
+          <% } %>
+    </header>
+
+    <div id="notificationsList"></div>
+
+    <main>
+
+      <div id="notificationsList"></div>
+
+      <h1>Register page MUSTARDD</h1>
+
+      <form action="/api/register" method="POST" id="registerForm">
+          <label for="username">Username</label>
+          <input type="username" id="usernameInput" name="username" placeholder="mike">
+
+          <label for="email">Email</label>
+          <input type="email" id="emailInput" name="email" placeholder="mikeWaz@gmail.com">
+
+          <label for="password">Password</label>
+          <input type="password" id="passwordInput" name="password" placeholder="Omphalophobia">
+
+          <input type="submit" value="register" id="submitButton">
+      </form>
+
+      <h2> Note: This will not sign you in. Please go to the <a href="/login">login page</a> to sign you in once you have registered.</h2>
+
+    </main>
+
+
+    <script src="/js/notifications.js"></script>
+
+    <script>
+      const usernameInputR = document.querySelector('#usernameInput');
+      const emailInputR = document.querySelector('#emailInput');
+      const passwordInputR = document.querySelector('#passwordInput');
+      const registerFormR = document.querySelector('#registerForm');
+      const mainR = document.getElementsByTagName('main')[0];
+      const notificationsListR = document.querySelector('#notificationsList');
+
+      console.log('usernameInput : ', usernameInputR);
+      console.log('emailInputR : ', emailInputR);
+      console.log('passwordInput : ', passwordInputR);
+      console.log('registerFormR : ', registerFormR);
+      console.log('mainR : ', mainR);
+      console.log('notificationsListR : ', notificationsListR);
+
+
+      const register = async () => {
+        console.log('register FUNC called');
+        const url = '/api/register';
+        const options = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            'username': usernameInputR.value,
+            'email': emailInputR.value,
+            'password': passwordInputR.value
+          })
+        }
+        const response = await fetch(url, options);
+        const result = response.json();
+
+        return result
+      }
+
+      registerFormR.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        console.log('registerFormR EL called, submit event happened');
+        console.log('event : ', event);
+
+        // Register using fetch()
+        const result = await register();
+        console.log('result.message : ', result.message);
+
+        // create new notification
+        const newNotification = createNewNotification('Servers', result.message, 5000);
+        
+        // Add new notification to main
+        notificationsListR.appendChild(newNotification);
+      })
+
+    </script>
+
+    <script src="/js/notifications.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="/js/socketStuff.js"></script>
+</body>
+</html>
