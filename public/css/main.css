@@ -134,3 +134,22 @@ textarea:focus {
     top: 0px;
     right: 0px;
 }
+
+#backButton {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    height: fit-content;
+}
+
+#backButton p {
+    padding: 0px;
+    margin: 0px;
+    margin-left: 5px;
+}
+
+#backArrowSvg {
+    height: 15px;
+}

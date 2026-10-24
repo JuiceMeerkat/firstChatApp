@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>GAMES page - bakugo</title>
+        <link rel="stylesheet" href="/css/main.css">
+        <link rel="stylesheet" href="/css/gamepageSnakePage.css">
+    </head>
+    <body>
+        <header>
+            <% if (user) { %>
+            <%- include('../../../partials/header-logged-in.ejs'); %>
+          <% } else if (!user) { %>
+            <%- include('../../../partials/header-not-logged-in.ejs'); %>
+          <% } else { %>
+            <%- console.log("su'in else") %>
+          <% } %>
+        </header>
+        
+        <main>
+            <a href="/games" style="text-decoration: none;"><button id="backButton"> <img id="backArrowSvg" src="/images/back-arrow.svg"><p>Back</p></button></a>
+            <h1>Snake</h1>
+
+            <canvas id="snakeCanvas">A description of what my canvas shows: a snake video game</canvas>
+            <p>
+                The game is a bit crude, we appreciate, but that is because this is only the v1. It does not yet have pausing/playing, reason for death, high score or high score linked to your account, a better display, or increased customisability. Those things may be coming in future updates. <br>
+                Controls:
+                <ul>
+                    <li>WASD or arrow keys for moving</li>
+                </ul> <br>
+                Aim of the game:
+                <ul>
+                    <li>Bro, it's snake, you should know. Ok, so you want to stay alive for as long as possible, and you (the blue 'snake') should collect the apples (the red dots)</li>
+                </ul>
+                Ways YOU might die:
+                <ul>
+                    <li>Hitting yourself</li>
+                    <li>Emotional damage</li>
+                    <li>Hitting a wall (no leaving the border of the map)</li>
+                </ul>
+                If the reason for your death seems a bit silly, it probably is, sorry. We're still working on it like we said, but it might just be a bug in the code. We hope you can have some patience with it, thanks.
+            </p>
+        </main>
+    </body>
+
+
+    
+    <!-- Scripts -->
+    <script src="/js/notifications.js"></script>
+    <script src="/socket.io/socket.io.js"></script> <!-- You need this line for the script below this to work--> <!-- I am super confused! Why is there a slash infront of the first socket.io and that made it stop throwing the nosniff MIME type error, on other pages that is not needed, it might even be meant to be left out!-->
+    <script src="/js/socketStuff.js"></script>
+
+    <script>
+        console.log('snake pages script online!');
+        
+        console.log('This page, as well as being a snake game is kind of me testing out how the html canvas element works as well - so keep that in mind');
+
+        // We should put even what may seem like the most global variables (the canvas reference and canvas context) into a class, because global variables aren't good, but I'm not going to bother, at least not yet.
+        const canvasR = document.querySelector('#snakeCanvas');
+        console.log('canvasR : ', canvasR);
+        const canvasContext = canvasR.getContext("2d");
+
+        const widthRes = 20;
+        const heightRes = 20;
+        const squareSideLength = 20; // in pixels
+        // add in a scale factor here later if you feel like it
+
+        // set the canvases height and width according to the values defined above
+        canvasR.height = (heightRes * squareSideLength);
+        canvasR.width = (widthRes * squareSideLength); // works, awesome
+
+        const playerArray = [
+            [0, 0],
+            [1, 0],
+            [2, 0]
+        ];
+        let playerDirection = 'right';
+        
+        const framesBetweenEachMovement = 2; // in frames cos that's easiest in this case cos there's no dt
+        let framesToNextMovement = framesBetweenEachMovement; // framesBetweenEachMovement is only what framesToNextMovement starts as
+        const blocksToMovePerMovement = 1;
+        let snakeHadFood = false;
+
+        // Food
+        let foodCoords = [];
+
+        // More game variables
+        let gameover = false;
+        
+        // Lesson in how to draw basic things onto an html canvas
+        // // Draw a green box at (10, 10) with width 100 and height 100
+        // canvasContext.fillStyle = "green";
+        // canvasContext.fillRect(10, 10, 100, 100);
+
+        // // Draw a blue line from (0, 0) to (200, 100)
+        // canvasContext.fillStyle = "blue";
+        // canvasContext.moveTo(0, 0);
+        // canvasContext.lineTo(200, 100);
+        // canvasContext.stroke();
+
+        // // Draw a circle
+        // canvasContext.beginPath();
+        // canvasContext.arc(95, 50, 40, 0, 2 * Math.PI);
+        // canvasContext.stroke();
+
+
+        function drawSquare(x, y) {
+            // console.log('drawSquare FUNC called');
+
+            canvasContext.fillRect((x * widthRes), (y * heightRes), squareSideLength, squareSideLength);
+        }
+
+
+        // setInterval() is going to become a crucial function that we are going to use, so it's important you understand how it works.
+        // setInterval() executes code, or a func (the first parameter) every n seconds (the second parameter). Not just once, it keeps on doing it
+        // It returns it's own unique intervalID, which you can pass to clearInterval() if you want to kill it.
+
+        function runOneGameFrame() {
+            // Clear the board to a black slate
+            canvasContext.fillStyle = 'black';
+            canvasContext.fillRect(0, 0, (widthRes * squareSideLength), (heightRes * squareSideLength));
+
+            // only UPDATE every framesBetweenEachMovement frames.
+            // Move snake along
+            framesToNextMovement = framesToNextMovement- 1;
+            if (framesToNextMovement <= 0) {
+                framesToNextMovement = framesBetweenEachMovement;
+
+                let newCoords = [
+                    playerArray[(playerArray.length - 1)][0],
+                    playerArray[(playerArray.length - 1)][1]
+                ]
+                if (playerDirection == 'up') {
+                    newCoords[1] -= blocksToMovePerMovement;
+                } else if (playerDirection == 'down') {
+                    newCoords[1] += blocksToMovePerMovement;
+                } else if (playerDirection == 'right') {
+                    newCoords[0] += blocksToMovePerMovement;
+                } else if (playerDirection == 'left') {
+                    newCoords[0] -= blocksToMovePerMovement;
+                } else {
+                    console.log('something went horribly wrong');
+                }
+                playerArray.push(newCoords);
+
+                // Check for collision of the newcoords with fruit
+                console.log('newCoords : ', newCoords);
+                console.log('foodCoords : ', foodCoords);
+                if ((newCoords[0] == foodCoords[0]) && (newCoords[1] == foodCoords[1])) {
+                    console.log('(newCoords == foodCoords)');
+                    placeNewFood();
+                    snakeHadFood = true;
+                }
+
+                // Check for collision of the newcoords with the snake itself (gameover)
+                let counter = 0
+                for (let i = 0; i < playerArray.length; i++) {
+                    if ((playerArray[i][0] == newCoords[0]) && (playerArray[i][1] == newCoords[1])) {
+                        counter = counter + 1;
+                    }
+                }
+                if (counter > 1) { // Should definitely appear at least once, but if twice, that means the player's hit themself
+                    console.log('gameover!');
+                    gameover = true;
+                }
+
+                // Check that the player hasn't left the sides of the board
+                if ((newCoords[0] >= widthRes) || (newCoords[0] < 0)) {
+                    gameover = true;
+                } 
+                if ((newCoords[1] >= heightRes) || (newCoords[1] < 0)) {
+                    gameover = true;
+                }
+
+
+                // get rid of the tail of the snake unless the snake ate food
+                if (snakeHadFood == false) {
+                    playerArray.splice(0, 1);
+                } else {
+                    snakeHadFood = false;
+                }
+            }
+
+
+            // Draw snake
+            canvasContext.fillStyle = 'blue';
+            playerArray.forEach((element) => {
+                drawSquare(element[0], element[1]);
+            })
+
+            // Draw food
+            canvasContext.fillStyle = 'red';
+            drawSquare(foodCoords[0], foodCoords[1]);
+
+
+            // console.log('gameover : ', gameover);
+            if (gameover == true) {
+                console.log('ACTIVATING GAMEOVER');
+                // return // because return doesn't seem to be fucking working, we're going to have to go with the sloppy approach
+                clearInterval(gameLoopIntervalID);
+                score = playerArray.length;
+
+                window.alert(`gameover! score: ${score}! Refresh the page to try again`);
+            }
+        }
+
+        placeNewFood();
+        const gameLoopIntervalID = setInterval(runOneGameFrame, 1000 / 10) // time between each run in milliseconds. 1000 / 10 means 10 fps
+
+        // because JS doesn't have a way for us to check what keys are currently pressed, with something like window.keysPressed(), we have to use eventListeners instead, which is only annoying because it's not what I've done in other games, so it's a shift from the usual swing of things
+        document.addEventListener('keydown', (event) => {
+            // console.log('event : ', event);
+            if ((event.key === "w") || (event.key === "ArrowUp")) {
+                event.preventDefault();
+                // console.log('arrow up or w pressed');
+                if (playerDirection != 'down') { playerDirection = 'up'; }; 
+            } else if ((event.key === "s") || (event.key === "ArrowDown")) {
+                event.preventDefault();
+                // console.log('arrow up or w pressed');
+                if (playerDirection != 'up') { playerDirection = 'down'; }; 
+            } else if ((event.key === "d") || (event.key === "ArrowRight")) {
+                event.preventDefault();
+                // console.log('arrow up or w pressed');
+                if (playerDirection != 'left') { playerDirection = 'right'; }; 
+            } else if ((event.key === "a") || (event.key === "ArrowLeft")) {
+                event.preventDefault();
+                // console.log('arrow up or w pressed');
+                if (playerDirection != 'right') { playerDirection = 'left'; }; 
+            }
+        })
+
+        function placeNewFood() {
+            foodCoords = [
+                Math.floor(Math.random() * widthRes),
+                Math.floor(Math.random() * heightRes)
+            ]
+
+        }
+        
+
+    </script>
+
+    
+</html>

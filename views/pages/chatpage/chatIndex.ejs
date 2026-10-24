@@ -437,12 +437,12 @@
 
         // ADD MESSAGE TO MESSAGES BOX IN CHATBOX
         const addMessage = async (data, userId, topOrBottom) => {
-            // console.log('addMessage FUNC called');
+            console.log('addMessage FUNC called');
 
             const {content, username, id} = data;
             // console.log('content : ', content);
             // console.log('username : ', username);
-            // console.log('id : ', id);
+            console.log('id : ', id);
 
             messagesBoxR = document.querySelector('#messagesBox');
             const messageToAdd = document.createElement('div')

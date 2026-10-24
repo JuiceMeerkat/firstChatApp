@@ -47,9 +47,13 @@ socket.on('E_ServerToCliMessage', async (data) => {
         
         const data = {
             "content": content,
-            "username": username
+            "username": username,
+            "id": id
         };
+        
         const userId = await whoami();
+        console.log('userId : ', userId);
+        
         addMessage(data, userId, 'bottom');
     } else {
         notificationsListR.appendChild(createNewNotification(room, `${username}: ${content}`, 10000));
